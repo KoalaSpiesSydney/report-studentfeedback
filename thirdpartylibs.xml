@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!--
+    Declares the third-party JavaScript libraries bundled with this plugin.
+
+    THIS FILE IS REQUIRED whenever you ship someone else's code. Omitting it is
+    a review blocker, and it is also how you prove your licences are compatible.
+
+    All three libraries below are GPLv3-compatible, which is what makes them
+    legal to redistribute inside a GPL plugin. Check any library you add against
+    https://www.gnu.org/licenses/license-list.en.html before bundling it.
+
+    Also required alongside this file:
+      - a readme_moodle.txt in each library folder, saying where you got it
+        and any changes you made
+      - run `grunt ignorefiles` after adding libraries, so Moodle's linters
+        skip third-party code
+-->
+<libraries>
+    <library>
+        <location>js/vendor/docx</location>
+        <name>docx</name>
+        <version>9.0.2</version>
+        <license>MIT</license>
+        <licenseversion></licenseversion>
+    </library>
+    <library>
+        <location>js/vendor/jszip</location>
+        <name>JSZip</name>
+        <version>3.10.1</version>
+        <license>MIT</license>
+        <licenseversion></licenseversion>
+    </library>
+    <library>
+        <location>js/vendor/filesaver</location>
+        <name>FileSaver.js</name>
+        <version>2.0.5</version>
+        <license>MIT</license>
+        <licenseversion></licenseversion>
+    </library>
+    <library>
+        <location>fonts</location>
+        <name>Public Sans</name>
+        <version>2.001</version>
+        <license>OFL</license>
+        <licenseversion>1.1</licenseversion>
+    </library>
+</libraries>

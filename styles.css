@@ -1,0 +1,458 @@
+/**
+ * Styles for the Student Feedback Reports plugin.
+ *
+ * ---------------------------------------------------------------------------
+ * IMPORTANT — WHY EVERY RULE IS SCOPED
+ *
+ * Moodle concatenates every plugin's styles.css into one site-wide stylesheet
+ * that loads on EVERY page. An unscoped rule here would restyle the whole site.
+ *
+ * So every selector below is nested under .report-studentfeedback, the wrapper
+ * div in templates/main.mustache. Nothing escapes that container.
+ *
+ * The background image is referenced with Moodle's [[pix:...]] syntax rather
+ * than inlined as a data URI. The original standalone tool embedded it as
+ * 126KB of URL-encoded SVG — harmless in a single-file page, but in a plugin
+ * stylesheet it would add 126KB to every page load across the entire site.
+ * ---------------------------------------------------------------------------
+ *
+ * @package    report_studentfeedback
+ * @copyright  2026 Justine Leigh Kelly
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+/* ---------------------------------------------------------------------------
+   Public Sans, bundled with the plugin.
+
+   SELF-HOSTED ON PURPOSE. Do not switch these to Google's CDN: loading fonts
+   from fonts.googleapis.com sends every visitor's IP address to Google, which
+   German courts have ruled a GDPR breach. A school running this plugin would
+   inherit that problem. Serving the files from Moodle avoids it entirely, and
+   removes an external dependency that could fail or be blocked.
+
+   [[font:report_studentfeedback|name]] resolves to /report/studentfeedback/fonts/name.
+   Moodle rewrites it when it aggregates plugin CSS. Font filenames must be
+   lowercase alphanumeric with underscores — hyphens are not permitted.
+
+   Two subsets per weight. The browser downloads latin-ext only when a character
+   needs it, so an accented student name renders correctly without costing
+   everyone else the extra 11KB.
+
+   Licence: SIL Open Font License 1.1 — see fonts/LICENSE_publicsans.txt.
+   Declared in thirdpartylibs.xml.
+   --------------------------------------------------------------------------- */
+
+@font-face {
+    font-family: 'Public Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url([[font:report_studentfeedback|publicsans_regular.woff2]]) format('woff2');
+    unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+@font-face {
+    font-family: 'Public Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url([[font:report_studentfeedback|publicsans_regular_ext.woff2]]) format('woff2');
+    unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Public Sans';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url([[font:report_studentfeedback|publicsans_medium.woff2]]) format('woff2');
+    unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+@font-face {
+    font-family: 'Public Sans';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url([[font:report_studentfeedback|publicsans_medium_ext.woff2]]) format('woff2');
+    unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Public Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url([[font:report_studentfeedback|publicsans_bold.woff2]]) format('woff2');
+    unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+@font-face {
+    font-family: 'Public Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url([[font:report_studentfeedback|publicsans_bold_ext.woff2]]) format('woff2');
+    unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+
+.report-studentfeedback {
+    --sf-ink: #1a1a1a;
+    --sf-black: #111111;
+    --sf-black-hover: #333333;
+    --sf-paper: #fbfbfa;
+    --sf-muted: #8a8a8a;
+    --sf-muted-dark: #767676;
+    --sf-disabled: #b4b4b4;
+    --sf-border: #dcdcdc;
+    --sf-field: #fafafa;
+    --sf-chip: #f1f1f1;
+    --sf-track: #e6e6e6;
+
+    --sf-warn-bg: #fff8e8;
+    --sf-warn-line: #f5d87a;
+    --sf-warn-ink: #7a5c00;
+    --sf-err-bg: #ffeaea;
+    --sf-err-line: #f5a0a0;
+    --sf-err-ink: #7a0000;
+    --sf-ok-bg: #eafaf1;
+    --sf-ok-line: #7ad0a0;
+    --sf-ok-ink: #1a5c3a;
+
+    /* Public Sans is bundled with the plugin (see the @font-face block above),
+       so it renders identically on every browser and device — unlike Aptos,
+       which ships with Office and is missing everywhere else.
+
+       The fallbacks only matter for the moment before the font loads, or if a
+       site blocks it. font-display: swap means text is readable throughout. */
+    font-family: "Public Sans", system-ui, -apple-system, "Segoe UI",
+        "Helvetica Neue", Arial, sans-serif;
+    color: var(--sf-ink);
+    background-color: var(--sf-paper);
+    padding: 26px 20px 60px;
+    margin: -10px -15px 0;
+}
+
+/* The gum-leaf pattern. Applied to the plugin's own container, never to body —
+   a plugin has no business restyling the whole page background. */
+.report-studentfeedback.sf-patterned {
+    background-image: url([[pix:report_studentfeedback|gumleaf]]);
+    background-repeat: repeat;
+    background-size: 460px 460px;
+}
+
+.report-studentfeedback * {
+    box-sizing: border-box;
+}
+
+/* ---- Panel header. Stands in for the black <header> of the original tool.
+   Deliberately not a page header: Moodle already draws one, and a second
+   full-width black bar reads as a broken theme. ---- */
+.report-studentfeedback .sf-head {
+    max-width: 820px;
+    margin: 0 auto 20px;
+    background: var(--sf-black);
+    color: #fff;
+    padding: 18px 28px;
+    border-radius: 12px;
+}
+
+.report-studentfeedback .sf-head h2 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin: 0;
+    color: #fff;
+}
+
+.report-studentfeedback .sf-head p {
+    font-size: 0.78rem;
+    opacity: 0.7;
+    margin: 3px 0 0;
+}
+
+.report-studentfeedback .sf-head p.sf-org {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    margin-top: 6px;
+}
+
+/* ---- Cards ---- */
+.report-studentfeedback .sf-main {
+    max-width: 820px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.report-studentfeedback .sf-card {
+    background: rgba(255, 255, 255, 0.88);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.report-studentfeedback .sf-card-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sf-muted);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.report-studentfeedback .sf-badge {
+    background: var(--sf-chip);
+    color: var(--sf-black);
+    border-radius: 20px;
+    padding: 2px 9px;
+    font-size: 0.65rem;
+    font-weight: 700;
+}
+
+.report-studentfeedback .sf-hint {
+    font-size: 0.82rem;
+    color: var(--sf-muted);
+    margin-bottom: 16px;
+}
+
+/* ---- Fields ---- */
+.report-studentfeedback .sf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.report-studentfeedback .sf-field label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--sf-black);
+    margin-bottom: 5px;
+}
+
+.report-studentfeedback .sf-field input[type="text"] {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid var(--sf-border);
+    border-radius: 8px;
+    font-size: 0.92rem;
+    color: var(--sf-ink);
+    background: var(--sf-field);
+    transition: border-color 0.15s;
+}
+
+.report-studentfeedback .sf-field input[type="text"]:focus {
+    outline: none;
+    border-color: var(--sf-black);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.12);
+    background: #fff;
+}
+
+.report-studentfeedback .sf-saved {
+    font-size: 0.75rem;
+    color: #6a9a6a;
+    margin-top: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.report-studentfeedback .sf-saved.sf-show {
+    opacity: 1;
+}
+
+/* ---- Roster. Checkboxes replace the original's twenty text boxes: the names
+   now come from the course, so they are confirmed rather than typed. ---- */
+.report-studentfeedback .sf-roster {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 14px;
+}
+
+.report-studentfeedback .sf-student {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 10px;
+    border: 1.5px solid transparent;
+    border-radius: 7px;
+    font-size: 0.9rem;
+}
+
+.report-studentfeedback .sf-student:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.report-studentfeedback .sf-student.sf-on {
+    background: var(--sf-chip);
+    border-color: #b5b5b5;
+}
+
+.report-studentfeedback .sf-student input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--sf-black);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.report-studentfeedback .sf-student label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: 400;
+}
+
+.report-studentfeedback .sf-count {
+    font-size: 0.82rem;
+    color: var(--sf-muted);
+    margin-top: 14px;
+}
+
+.report-studentfeedback .sf-count strong {
+    color: var(--sf-black);
+}
+
+.report-studentfeedback .sf-toggles {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 12px;
+}
+
+.report-studentfeedback .sf-link {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.8rem;
+    color: var(--sf-muted-dark);
+    text-decoration: underline;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.report-studentfeedback .sf-link:hover {
+    color: var(--sf-black);
+}
+
+/* ---- Download button ---- */
+.report-studentfeedback .sf-download {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px;
+    background: var(--sf-black);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.report-studentfeedback .sf-download:hover:not(:disabled) {
+    background: var(--sf-black-hover);
+}
+
+.report-studentfeedback .sf-download:disabled {
+    background: var(--sf-disabled);
+    cursor: not-allowed;
+}
+
+/* ---- Progress ---- */
+.report-studentfeedback .sf-progress {
+    display: none;
+    margin-top: 16px;
+}
+
+.report-studentfeedback .sf-progress.sf-show {
+    display: block;
+}
+
+.report-studentfeedback .sf-track {
+    background: var(--sf-track);
+    border-radius: 6px;
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.report-studentfeedback .sf-bar {
+    height: 100%;
+    background: var(--sf-black);
+    width: 0;
+    transition: width 0.2s;
+    border-radius: 6px;
+}
+
+.report-studentfeedback .sf-plabel {
+    font-size: 0.82rem;
+    color: var(--sf-muted-dark);
+    text-align: center;
+}
+
+/* ---- Alerts ---- */
+.report-studentfeedback .sf-alert {
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.83rem;
+    margin-top: 12px;
+    display: none;
+}
+
+.report-studentfeedback .sf-alert.sf-show {
+    display: block;
+}
+
+.report-studentfeedback .sf-warn {
+    background: var(--sf-warn-bg);
+    border: 1px solid var(--sf-warn-line);
+    color: var(--sf-warn-ink);
+}
+
+.report-studentfeedback .sf-error {
+    background: var(--sf-err-bg);
+    border: 1px solid var(--sf-err-line);
+    color: var(--sf-err-ink);
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    white-space: pre-wrap;
+    font-size: 0.78rem;
+}
+
+.report-studentfeedback .sf-success {
+    background: var(--sf-ok-bg);
+    border: 1px solid var(--sf-ok-line);
+    color: var(--sf-ok-ink);
+    font-weight: 600;
+}
+
+/* ---- Small screens ---- */
+@media (max-width: 620px) {
+    .report-studentfeedback .sf-grid,
+    .report-studentfeedback .sf-roster {
+        grid-template-columns: 1fr;
+    }
+
+    .report-studentfeedback .sf-card {
+        padding: 22px 18px;
+    }
+}
+
+/* ---- Respect a reduced-motion preference ---- */
+@media (prefers-reduced-motion: reduce) {
+    .report-studentfeedback .sf-bar,
+    .report-studentfeedback .sf-saved,
+    .report-studentfeedback .sf-field input[type="text"] {
+        transition: none;
+    }
+}

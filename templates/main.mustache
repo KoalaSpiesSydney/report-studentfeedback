@@ -1,0 +1,176 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template report_studentfeedback/main
+
+    The feedback report generator interface.
+
+    Note: {{ }} escapes its output, {{{ }}} does not. Use double braces unless
+    you have a specific reason not to — that habit is most of your XSS defence.
+
+    Layout classes are the plugin's own (sf-*), defined in styles.css, which
+    reproduces the palette and typography of the original standalone tool:
+    Arial, near-black #111 on off-white #fbfbfa, soft cards, black buttons.
+
+    Every one of those classes is scoped under .report-studentfeedback in
+    styles.css, because Moodle loads plugin CSS on every page of the site.
+
+    The data-region / data-action / data-field hooks are what generator.js
+    binds to. Rename a class freely; rename one of those and the page stops
+    working.
+
+    Context variables required for this template:
+    * students - array of objects with id and fullname
+    * groups - array of objects with id and name
+    * hasgroups - bool, whether the course uses groups
+    * courseid - int
+    * currentgroup - int
+    * formaction - string, URL for the group filter form
+    * sesskey - string
+
+    Example context (json):
+    {
+        "students": [{"id": 4, "fullname": "Ada Lovelace"}],
+        "groups": [],
+        "hasgroups": false,
+        "courseid": 2,
+        "currentgroup": 0,
+        "formaction": "/report/studentfeedback/index.php",
+        "sesskey": "abc123"
+    }
+}}
+
+<div class="report-studentfeedback {{#patterned}}sf-patterned{{/patterned}}" data-region="studentfeedback">
+
+    <div class="sf-head">
+        <h2>{{#str}}pluginname, report_studentfeedback{{/str}}</h2>
+        <p>{{#str}}step1help, report_studentfeedback{{/str}}</p>
+        {{#organisation}}<p class="sf-org">{{organisation}}</p>{{/organisation}}
+    </div>
+
+    <div class="sf-main">
+
+    {{#hasgroups}}
+    <form method="get" action="{{formaction}}" class="mb-3 form-inline">
+        <input type="hidden" name="id" value="{{courseid}}">
+        <label class="mr-2" for="sf-group">{{#str}}group{{/str}}</label>
+        <select class="custom-select mr-2" id="sf-group" name="group">
+            <option value="0">{{#str}}allparticipants{{/str}}</option>
+            {{#groups}}
+            <option value="{{id}}">{{name}}</option>
+            {{/groups}}
+        </select>
+        <button type="submit" class="btn btn-secondary">{{#str}}filter{{/str}}</button>
+    </form>
+    {{/hasgroups}}
+
+    {{! ----------------------------------------------------------------
+        STEP 1 — the class list, read from Moodle rather than typed.
+    ----------------------------------------------------------------- }}
+    <div class="sf-card">
+        <div class="sf-card-title">
+            {{#str}}step1heading, report_studentfeedback{{/str}}
+            <span class="sf-badge">{{#str}}fromthiscourse, report_studentfeedback{{/str}}</span>
+        </div>
+
+        <div class="sf-toggles">
+            <button type="button" class="sf-link" data-action="select-all">
+                {{#str}}selectall, report_studentfeedback{{/str}}
+            </button>
+            <button type="button" class="sf-link" data-action="select-none">
+                {{#str}}selectnone, report_studentfeedback{{/str}}
+            </button>
+        </div>
+
+        <div class="sf-roster" data-region="student-list">
+            {{#students}}
+            <div class="sf-student sf-on">
+                <input type="checkbox"
+                       id="sf-student-{{id}}"
+                       data-student-id="{{id}}"
+                       data-student-name="{{fullname}}"
+                       checked>
+                <label for="sf-student-{{id}}">{{fullname}}</label>
+            </div>
+            {{/students}}
+        </div>
+
+        {{^students}}
+        <p class="sf-hint">{{#str}}nostudents, report_studentfeedback{{/str}}</p>
+        {{/students}}
+
+        <p class="sf-count"><strong data-region="student-count"></strong></p>
+    </div>
+
+    {{! ----------------------------------------------------------------
+        STEP 2 — details that appear on every report.
+    ----------------------------------------------------------------- }}
+    <div class="sf-card">
+        <div class="sf-card-title">
+            {{#str}}step2heading, report_studentfeedback{{/str}}
+            <span class="sf-badge">{{#str}}savedautomatically, report_studentfeedback{{/str}}</span>
+        </div>
+
+        <div class="sf-grid">
+            <div class="sf-field">
+                <label for="sf-teacher">{{#str}}teachername, report_studentfeedback{{/str}}</label>
+                <input type="text" id="sf-teacher" data-field="teacher">
+            </div>
+            <div class="sf-field">
+                <label for="sf-location">{{#str}}location, report_studentfeedback{{/str}}</label>
+                <input type="text" id="sf-location" data-field="location">
+            </div>
+            <div class="sf-field">
+                <label for="sf-programme">{{#str}}programme, report_studentfeedback{{/str}}</label>
+                <input type="text" id="sf-programme" data-field="programme">
+            </div>
+            <div class="sf-field">
+                <label for="sf-campname">{{#str}}campname, report_studentfeedback{{/str}}</label>
+                <input type="text" id="sf-campname" data-field="campname">
+            </div>
+        </div>
+
+        <div class="sf-saved" data-region="saved-note">
+            {{#str}}detailssaved, report_studentfeedback{{/str}}
+        </div>
+    </div>
+
+    {{! ----------------------------------------------------------------
+        STEP 3 — generate and download.
+    ----------------------------------------------------------------- }}
+    <div class="sf-card">
+        <div class="sf-card-title">{{#str}}step3heading, report_studentfeedback{{/str}}</div>
+
+        <button type="button" class="sf-download" data-action="generate">
+            &#8659;&nbsp; {{#str}}downloadreports, report_studentfeedback{{/str}}
+        </button>
+
+        <div class="sf-progress" data-region="progress">
+            <div class="sf-track">
+                <div class="sf-bar" role="progressbar"
+                     aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+        <p class="sf-plabel" data-region="progress-label"></p>
+
+        <div class="sf-alert sf-error" role="alert" data-region="error"></div>
+        <div class="sf-alert sf-success" role="alert" data-region="success"></div>
+    </div>
+
+    </div>{{! .sf-main }}
+
+</div>
