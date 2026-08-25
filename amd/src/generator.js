@@ -185,6 +185,15 @@ const getSelectedStudents = (root) => {
  */
 const updateCount = (root) => {
     const count = getSelectedStudents(root).length;
+
+    // Disable the button when nothing is ticked. Without this, generateAll()
+    // returns silently on an empty selection -- the teacher clicks Download,
+    // nothing happens, and there is no clue why.
+    const button = root.querySelector('[data-action="generate"]');
+    if (button) {
+        button.disabled = count === 0;
+    }
+
     const target = root.querySelector('[data-region="student-count"]');
     if (target) {
         getString('studentcount', 'report_studentfeedback', count)
@@ -271,6 +280,10 @@ const generateAll = async(root) => {
 
     const students = getSelectedStudents(root);
     if (students.length === 0) {
+        // The button is disabled in this state, so this is only reachable by
+        // keyboard or script -- but silence would still be the wrong answer.
+        setMessage(root, 'error', await getString('noneselected',
+            'report_studentfeedback'));
         return;
     }
 
@@ -308,7 +321,9 @@ const generateAll = async(root) => {
         setMessage(root, 'error',
             await getString('generationfailed', 'report_studentfeedback', error.message || String(error)));
     } finally {
-        button.disabled = false;
+        // Re-derive rather than unconditionally enabling: if the teacher
+        // unticked everyone while this ran, the button must stay disabled.
+        updateCount(root);
     }
 };
 
@@ -402,19 +417,49 @@ const buildFromSettings = async(studentName, details) => {
     const para = (runs, opts = {}) => new D.Paragraph({children: runs, ...opts});
     const run = (text, rOpts = {}) => new D.TextRun({text, font: FONT, size: SZ, ...rOpts});
 
-    const metaPara = (label, value) => para([
-        run(label, {bold: true}),
-        run(value || ''),
-    ], {spacing: {after: 60}});
+    // An empty value gets a ruled space to write on, rather than a bare
+    // 'Label:' with nothing after it -- which reads as a fault, not a form.
+    // An empty value gets a ruled space to write on, rather than a bare
+    // 'Label:' with nothing after it -- which reads as a fault, not a form.
+    // A zero-height unbordered paragraph. Word merges CONSECUTIVE paragraphs
+    // that carry identical borders into one rule, so anything ruled and
+    // repeated needs one of these between the repeats.
+    const spacer = () => para([new D.TextRun({text: '', size: 2})],
+        {spacing: {after: 0, line: 20}});
 
+    // An empty value gets a ruled space to write on, rather than a bare
+    // 'Label:' with nothing after it -- which reads as a fault, not a form.
+    // Returns an array, because an empty one needs its anti-merge spacer.
+    const metaPara = (label, value) => {
+        if (value) {
+            return [para([run(label, {bold: true}), run(value)],
+                {spacing: {after: 140}})];
+        }
+        return [
+            para([run(label, {bold: true})], {
+                spacing: {before: 60, after: 0},
+                border: {bottom: {style: D.BorderStyle.SINGLE, size: 4, color: 'dddddd'}},
+            }),
+            spacer(),
+        ];
+    };
+
+    // Left-aligned to match the body. Centred headings over left-aligned text
+    // give the page two competing axes, which is what made it look unresolved.
     const sectionHead = (title) => para([
-        run(title, {bold: true}),
-    ], {alignment: D.AlignmentType.CENTER, spacing: {before: 100, after: 40}});
+        run(title, {bold: true, size: 26}),
+    ], {alignment: D.AlignmentType.LEFT, spacing: {before: 360, after: 120}});
 
-    const writingLine = () => para([run('')], {
-        border: {bottom: {style: D.BorderStyle.SINGLE, size: 4, color: 'cccccc'}},
-        spacing: {after: 80},
-    });
+    // Blank writing space, not a ruled line. These reports are filled in on
+    // screen far more often than by hand, and a page of rules reads as a form
+    // to print rather than a document to type into. An empty paragraph with a
+    // generous line height leaves room to write without drawing anything.
+    //
+    // Nothing is drawn, so these cannot hit the border-merge problem that the
+    // meta fields still have to work around with spacer().
+    const writingLine = () => [
+        para([run('')], {spacing: {before: 0, after: 0, line: 400}}),
+    ];
 
     // Starter text the teacher can keep or amend.
     //
@@ -456,25 +501,28 @@ const buildFromSettings = async(studentName, details) => {
             sectionBlocks.push(starterText(section.prompt));
         }
         for (let i = 0; i < (state.config.writinglines || 3); i++) {
-            sectionBlocks.push(writingLine());
+            sectionBlocks.push(...writingLine());
         }
     });
 
     return await D.Packer.toBlob(new D.Document({
         sections: [{
-            properties: {page: {margin: {top: 500, bottom: 500, left: 720, right: 720}}},
+            properties: {page: {margin: {top: 1080, bottom: 1080, left: 1080, right: 1080}}},
             children: [
-                para([run(state.config.organisation || '', {bold: true, size: 22})]),
+                para([
+                    run((state.config.organisation || '').toUpperCase(),
+                        {bold: true, size: 18, color: '666666', characterSpacing: 60}),
+                ], {alignment: D.AlignmentType.CENTER, spacing: {after: 40}}),
                 para([
                     run('STUDENT FEEDBACK REPORT', {bold: true, size: SZ_TITLE}),
-                ], {alignment: D.AlignmentType.CENTER}),
+                ], {alignment: D.AlignmentType.CENTER, spacing: {after: 360}}),
 
-                metaPara('Student name: ', studentName),
-                metaPara('Course: ', state.coursename),
-                metaPara('Teacher name: ', details.teacher),
-                metaPara('Location: ', details.location),
-                metaPara('Programme: ', details.programme),
-                metaPara('Camp name: ', details.campname),
+                ...metaPara('Student name: ', studentName),
+                ...metaPara('Course: ', state.coursename),
+                ...metaPara('Teacher name: ', details.teacher),
+                ...metaPara('Location: ', details.location),
+                ...metaPara('Programme: ', details.programme),
+                ...metaPara('Camp name: ', details.campname),
 
                 ...sectionBlocks,
 
