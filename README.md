@@ -78,14 +78,17 @@ delete, which is why *Editable draft* is the default.
 ## Requirements
 
 - Moodle 4.3 or later
-- The three bundled libraries — see `js/vendor/README.md`
+- The three bundled JavaScript libraries, which ship with this plugin —
+  see `js/vendor/readme_moodle.txt` for versions, sources and upgrade steps
 
 ## Installation
 
 1. Copy this folder to `{moodle}/report/studentfeedback`
-2. Add the libraries listed in `js/vendor/README.md`
-3. Visit *Site administration → Notifications* to complete the install
-4. Configure defaults at *Site administration → Reports → Student feedback reports*
+2. Visit *Site administration → Notifications* to complete the install
+3. Configure defaults at *Site administration → Reports → Student feedback reports*
+
+No separate library download is needed — jszip, docx and FileSaver.js are
+bundled under `js/vendor/` and declared in `thirdpartylibs.xml`.
 
 Teachers reach it from a course via *More → Generate feedback reports*.
 
@@ -203,7 +206,8 @@ Ordered by what makes it sellable, not by what's most fun.
 - [ ] Tested on MySQL **and** PostgreSQL
 - [ ] Zero notices with debugging set to DEVELOPER
 - [ ] `moodle-plugin-ci` passing clean
-- [ ] `readme_moodle.txt` in each vendor library folder
+- [x] `readme_moodle.txt` in each vendor library folder
+- [x] Continuous integration running `moodle-plugin-ci` on every push
 
 ## Licence
 

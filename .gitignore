@@ -1,0 +1,6 @@
+# Build artefact from tools/build_preview.py — regenerate, don't commit.
+/preview/
+
+# Local tooling
+/node_modules/
+package-lock.json
