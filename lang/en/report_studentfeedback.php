@@ -44,6 +44,7 @@ $string['studentfeedback:managetemplates'] = 'Manage feedback report templates';
 // The roster step.
 $string['step1heading'] = 'Step 1 — Check the class list';
 $string['step1help'] = 'These students are enrolled in this course. Untick anyone who should not receive a report.';
+$string['noneselected'] = 'Tick at least one student to generate a report.';
 $string['nostudents'] = 'No students are enrolled in this course, so there is nothing to generate.';
 $string['fromthiscourse'] = 'From this course';
 $string['savedautomatically'] = 'Saved automatically';
@@ -108,7 +109,7 @@ Participation in class | Engaged and focused in every lesson. Always willing to 
 Action plan | Keep expanding vocabulary through reading. Try using new expressions in speaking activities to build fluency.
 Final comments | A pleasure to teach this term. Steady progress across all areas and a positive attitude throughout.';
 $string['writinglines'] = 'Writing lines per section';
-$string['writinglines_desc'] = 'How many ruled blank lines to print under each section, for the teacher to write on.';
+$string['writinglines_desc'] = 'How much blank writing space to leave under each section, counted in lines. The space is left empty rather than ruled, so the report can be typed into as well as written on.';
 $string['promptstyle'] = 'Starter text style';
 $string['promptstyle_desc'] = 'How the starter text appears in the document.
 
