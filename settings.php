@@ -28,13 +28,19 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// $ADMIN and $hassiteconfig are provided by Moodle when it builds the admin tree.
+// $ADMIN, $settings and $hassiteconfig are all provided by Moodle when it builds
+// the admin tree.
+//
+// Do NOT create an admin_settingpage here, and do NOT call $ADMIN->add(). For a
+// report plugin, core's plugininfo\report::load_settings() has already made the
+// page and will add it for us once this file returns. Making a second page with
+// the same name and adding it again produced:
+//
+//   Duplicate admin page name: report_studentfeedback
+//
+// which is a debugging notice on every page load of a site running at DEVELOPER
+// level -- and a Moodle plugins directory review blocker.
 if ($hassiteconfig) {
-
-    $settings = new admin_settingpage(
-        'report_studentfeedback',
-        get_string('pluginname', 'report_studentfeedback')
-    );
 
     $settings->add(new admin_setting_heading(
         'report_studentfeedback/heading',
@@ -109,6 +115,4 @@ if ($hassiteconfig) {
             'sample' => get_string('promptstylesample', 'report_studentfeedback'),
         ]
     ));
-
-    $ADMIN->add('reports', $settings);
 }
