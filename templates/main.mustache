@@ -19,8 +19,11 @@
 
     The feedback report generator interface.
 
-    Note: {{ }} escapes its output, {{{ }}} does not. Use double braces unless
-    you have a specific reason not to — that habit is most of your XSS defence.
+    Note: double braces escape their output, triple braces do not. Use double
+    braces unless you have a specific reason not to — that habit is most of your
+    XSS defence. (Braces are spelled out here on purpose: a Mustache comment
+    ends at its first closing delimiter, so a literal one inside this block
+    would terminate the comment early and dump the rest onto the page.)
 
     Layout classes are the plugin's own (sf-*), defined in styles.css, which
     reproduces the palette and typography of the original standalone tool:
